@@ -1,142 +1,137 @@
-
 <html>
+
 <head>
-
 </head>
+
 <body bgcolor="#fff">
-<input type='file' id="fileUpload" />
-
-<a id="download" href="#" download="name.png" onclick="this.href=canvas_result.toDataURL();" >下載</a>
-<div>
+  <input type='file' id="fileUpload" />
+  <a id="download" href="#" download="name.png" onclick="this.href=canvas_result.toDataURL();">下載</a>
+  <div>
     上傳圖片，圈選roi後，下方將顯示roi結果，再按下載(支援多重roi區域)
-</div>
+  </div>
+  <div>
+    <canvas width="1000" height="800" id="myCanvas2" style="position: absolute;top:100;left:100;"></canvas>
+    <!--first law picture-->
+  </div>
+  <div>
+    <canvas width="1000" height="800" id="Canvas_result" style="position: absolute;top:800;left:100;"></canvas>
+    <!--first law picture-->
+  </div>
+  {% load staticfiles %}
+  <script>
+  function el(id) { return document.getElementById(id); } // Get elem by ID
 
-<div>
-<canvas width="1000" height="800" id="myCanvas2" style="position: absolute;top:100;left:100;"></canvas>  <!--first law picture-->
-</div>
-<div>
-<canvas width="1000" height="800" id="Canvas_result" style="position: absolute;top:800;left:100;"></canvas>  <!--first law picture-->
-</div>
-
-
-{% load staticfiles %}
-
-<script>
-function el(id){return document.getElementById(id);} // Get elem by ID
-
-var mx,my;
+  var mx, my;
 
 
 
 
-// load picture
+  // load picture
 
-var canvas2 = document.getElementById("myCanvas2"); // 取得物件
-var ctx2 = canvas2.getContext("2d"); // 取得繪圖環境 圖片
-var canvas_result = document.getElementById("Canvas_result"); // 取得物件
-var ctx_result = canvas_result.getContext("2d"); // 取得繪圖環境 圖片
+  var canvas2 = document.getElementById("myCanvas2"); // 取得物件
+  var ctx2 = canvas2.getContext("2d"); // 取得繪圖環境 圖片
+  var canvas_result = document.getElementById("Canvas_result"); // 取得物件
+  var ctx_result = canvas_result.getContext("2d"); // 取得繪圖環境 圖片
 
 
-function readImage() {
-  file_name=this.value.split('/').pop().split('\\').pop();
-  if ( this.files && this.files[0] ) {
-      var FR= new FileReader();
+  function readImage() {
+    file_name = this.value.split('/').pop().split('\\').pop();
+    if (this.files && this.files[0]) {
+      var FR = new FileReader();
       FR.onload = function(e) {
-          img_load = new Image();
-         img_load.addEventListener("load", function() {
-           canvas2.width = img_load.width;
-           canvas2.height = img_load.height;
-           canvas_result.width = img_load.width;
-           canvas_result.height = img_load.height;
+        img_load = new Image();
+        img_load.addEventListener("load", function() {
+          canvas2.width = img_load.width;
+          canvas2.height = img_load.height;
+          canvas_result.width = img_load.width;
+          canvas_result.height = img_load.height;
 
-           ctx2.drawImage(img_load, 0, 0);
-         });
-         img_load.src = e.target.result;
+          ctx2.drawImage(img_load, 0, 0);
+        });
+        img_load.src = e.target.result;
       };
-      FR.readAsDataURL( this.files[0] );
+      FR.readAsDataURL(this.files[0]);
       document.getElementById("download").setAttribute("download", file_name)
+    }
   }
-}
-el("fileUpload").addEventListener("change", readImage, false);
+  el("fileUpload").addEventListener("change", readImage, false);
 
 
 
 
 
-var mark_counter;
+  var mark_counter;
 
-var mark_matrix = new Array();
+  var mark_matrix = new Array();
 
 
-canvas2.addEventListener('mousedown',mouseDown);
-canvas2.addEventListener('mousemove',mouseMove);
-canvas2.addEventListener('mouseup',mouseUp);
-function mouseDown(e){
-    this.draw=true;
+  canvas2.addEventListener('mousedown', mouseDown);
+  canvas2.addEventListener('mousemove', mouseMove);
+  canvas2.addEventListener('mouseup', mouseUp);
+
+  function mouseDown(e) {
+    this.draw = true;
     this.ctx = this.getContext("2d");
-    this.ctx.strokeStyle='#000000';
-    this.ctx.lineWidth=2;
+    this.ctx.strokeStyle = '#000000';
+    this.ctx.lineWidth = 2;
 
-    var o=this;
-    this.offsetX=this.offsetLeft;
-    this.offsetY=this.offsetTop;
+    var o = this;
+    this.offsetX = this.offsetLeft;
+    this.offsetY = this.offsetTop;
 
-    while(o.offsetParent){
-    	o=o.offsetParent;
-    	this.offsetX+=o.offsetLeft;
-    	this.offsetY+=o.offsetTop;
+    while (o.offsetParent) {
+      o = o.offsetParent;
+      this.offsetX += o.offsetLeft;
+      this.offsetY += o.offsetTop;
     }
 
     this.ctx.beginPath();
-    this.ctx.moveTo(e.pageX-this.offsetX,e.pageY-this.offsetY);
-}
+    this.ctx.moveTo(e.pageX - this.offsetX, e.pageY - this.offsetY);
+  }
 
-function mouseMove(e){
-    if (this.draw){
+  function mouseMove(e) {
+    if (this.draw) {
 
-        ctx2.save();
-        ctx2.beginPath();
+      ctx2.save();
+      ctx2.beginPath();
 
-        mx = event.clientX - parseInt(canvas2.style.left) + window.pageXOffset;
-        my = event.clientY - parseInt(canvas2.style.top) + window.pageYOffset;
-        ctx2.moveTo(mx, my);
-        mark_matrix.push(mx);
-        mark_matrix.push(my);
-        mark_counter = mark_counter + 2;
-        //pointcounter.textContent =mark_matrix[2];
-        ctx2.arc(mx, my, 1, 0, 2*Math.PI);
-        ctx2.stroke();
-        ctx2.closePath();//結束時自動連回beginpath
-        ctx2.restore();
+      mx = event.clientX - parseInt(canvas2.style.left) + window.pageXOffset;
+      my = event.clientY - parseInt(canvas2.style.top) + window.pageYOffset;
+      ctx2.moveTo(mx, my);
+      mark_matrix.push(mx);
+      mark_matrix.push(my);
+      mark_counter = mark_counter + 2;
+      //pointcounter.textContent =mark_matrix[2];
+      ctx2.arc(mx, my, 1, 0, 2 * Math.PI);
+      ctx2.stroke();
+      ctx2.closePath(); //結束時自動連回beginpath
+      ctx2.restore();
     }
-}
-var px=0; // 生成圖片位置x位移
-var py=0;//生成圖片位置y位移
+  }
+  var px = 0; // 生成圖片位置x位移
+  var py = 0; //生成圖片位置y位移
 
 
-function mouseUp(e){
-    this.draw=false;
+  function mouseUp(e) {
+    this.draw = false;
 
     ctx_result.save();
     ctx_result.beginPath();
-    ctx_result.moveTo(mark_matrix[0]+px, mark_matrix[1]+py);
-    for (i = 0; i < mark_matrix.length; i+=2) {
+    ctx_result.moveTo(mark_matrix[0] + px, mark_matrix[1] + py);
+    for (i = 0; i < mark_matrix.length; i += 2) {
 
 
-      ctx_result.lineTo(mark_matrix[i]+px, mark_matrix[i+1]+py); //劃出全部點
+      ctx_result.lineTo(mark_matrix[i] + px, mark_matrix[i + 1] + py); //劃出全部點
     }
-    ctx_result.closePath();//結束時自動連回beginpath
+    ctx_result.closePath(); //結束時自動連回beginpath
     ctx_result.stroke();
     ctx_result.clip();
-    ctx_result.drawImage(img_load,px,py);
+    ctx_result.drawImage(img_load, px, py);
     ctx_result.restore();
-    mark_matrix=[];
+    mark_matrix = [];
 
-}
+  }
+  </script>
+</body>
 
-
-
-
-</script>
-
-</body></html>
+</html>
