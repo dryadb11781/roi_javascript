@@ -61,22 +61,21 @@
 
   function mouseDown(e) {
     this.draw = true;
-    this.ctx = this.getContext("2d");
-    this.ctx.strokeStyle = '#000000';
-    this.ctx.lineWidth = 2;
+    ctxInput.strokeStyle = '#000000';
+    ctxInput.lineWidth = 2;
 
-    var o = this;
     this.offsetX = this.offsetLeft;
     this.offsetY = this.offsetTop;
 
+    var o = this;
     while (o.offsetParent) {
       o = o.offsetParent;
       this.offsetX += o.offsetLeft;
       this.offsetY += o.offsetTop;
     }
 
-    this.ctx.beginPath();
-    this.ctx.moveTo(e.pageX - this.offsetX, e.pageY - this.offsetY);
+    ctxInput.beginPath();
+    ctxInput.moveTo(e.pageX - this.offsetX, e.pageY - this.offsetY);
   }
 
   function mouseMove(e) {
@@ -86,13 +85,18 @@
 
       mx = event.clientX - parseInt(canvasInput.style.left) + window.pageXOffset;
       my = event.clientY - parseInt(canvasInput.style.top) + window.pageYOffset;
+
       ctxInput.moveTo(mx, my);
+
       mark_matrix_x.push(mx);
       mark_matrix_y.push(my);
+
       //pointcounter.textContent =mark_matrix[2];
+
       ctxInput.arc(mx, my, 1, 0, 2 * Math.PI);
-      ctxInput.stroke();
+
       ctxInput.closePath(); //結束時自動連回beginpath
+      ctxInput.stroke();
       ctxInput.restore();
     }
   }
@@ -113,9 +117,9 @@
     ctxResult.clip();
     ctxResult.drawImage(img_load, 0, 0);
     ctxResult.restore();
+
     mark_matrix_x = [];
     mark_matrix_y = [];
-
   }
   </script>
 </body>
